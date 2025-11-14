@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.pokemonbattlefield.model.util.EvolucaoPokemon;
 
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -39,12 +39,18 @@ public class Pokemon {
     @Column(name = "qtd_derrotas")
     private Integer qtdDerrotas;
 
-    @JoinTable(name = "treinador")
+    @Column(name = "tipo")
+    private String tipo;
+
+    @JoinColumn(name = "id_treinador")
     @ManyToOne
     private Treinador treinador;
 
+    @ManyToMany(mappedBy = "pokemonsBatalha")
+    private List<Batalha> batalhas;
+
     public Integer getQtdBatalhas (){
-        return qtdDerrotas+qtdVitorias;
+        return (qtdDerrotas != null ? qtdDerrotas : 0) + (qtdVitorias != null ? qtdVitorias : 0);
     }
 
 }

@@ -18,15 +18,19 @@ public class Batalha {
     private UUID id;
 
     @ManyToMany(mappedBy = "id_pokemon")
-    @JoinTable(name = "batalha_pokemons")
+    @JoinTable(
+            name = "batalha_pokemons",
+            joinColumns = @JoinColumn(name = "id_batalha"),
+            inverseJoinColumns = @JoinColumn(name = "id_pokemon")
+    )
     private List<Pokemon> pokemonsBatalha;
 
-    @OneToOne(mappedBy = "id_treinador_vencedor")
-    @JoinTable(name = "batalha")
+    @ManyToOne
+    @JoinColumn(name = "id_treinador_vencedor")
     private Treinador ganhador;
 
     @OneToOne
-    @JoinTable(name = "ginasio")
+    @JoinColumn(name = "id_ginasio")
     private Ginasio ginasio;
 
 }

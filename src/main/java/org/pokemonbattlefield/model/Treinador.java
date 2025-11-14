@@ -24,11 +24,10 @@ public class Treinador {
     @Column(name="level_experiencia")
     private Integer levelExperiencia;
 
-    @Column(name = "classe_treinador")
+    @Column(name = "classetreinador")
     private ClasseTreinador classeTreinador;
 
-    @OneToMany(mappedBy = "id")
-    @JoinTable(name = "pokemon")
+    @OneToMany(mappedBy = "treinador")
     private List<Pokemon> pokemons;
 
 }
