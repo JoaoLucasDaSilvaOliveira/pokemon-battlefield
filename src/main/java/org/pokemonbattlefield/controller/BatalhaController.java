@@ -1,12 +1,9 @@
 package org.pokemonbattlefield.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("pokemon")
-@RequiredArgsConstructor
-public class PokemonController {
+@RestController("batalha")
+public class BatalhaController {
 
 //    private final BatalhaService service;
-
 }
