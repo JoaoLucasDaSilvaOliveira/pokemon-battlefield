@@ -4,6 +4,7 @@ import org.pokemonbattlefield.controller.dto.ErroCampoDTO;
 import org.pokemonbattlefield.controller.dto.ErroRespostaDTO;
 import org.pokemonbattlefield.exception.DuplicadoException;
 import org.pokemonbattlefield.exception.IdInvalidoException;
+import org.pokemonbattlefield.exception.RegistroNaoEncontradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -36,9 +37,16 @@ public class GlobarExceptionHandler {
 
     //PARA ERRO DE UUIDs INVALIDOS
     @ExceptionHandler(IdInvalidoException.class)
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErroRespostaDTO handleUUIDInvalidoException (IdInvalidoException e){
         return new ErroRespostaDTO(HttpStatus.UNPROCESSABLE_ENTITY. value(), "Identificador informado está incorreto, informar um id no formato: "+ e.getTipoId(), List.of());
+    }
+
+    //PARA ERROS DE REGISTRO NÃO ENCONTRADO
+    @ExceptionHandler(RegistroNaoEncontradoException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErroRespostaDTO handleRegistroNaoEncontradoException(RegistroNaoEncontradoException e){
+        return new ErroRespostaDTO(HttpStatus.NOT_FOUND.value(), e.getTipoEntidade()+" não encontrado", List.of());
     }
 
     //PARA ERROS NÃO VISTOS
