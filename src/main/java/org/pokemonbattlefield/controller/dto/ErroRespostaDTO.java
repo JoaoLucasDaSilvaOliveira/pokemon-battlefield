@@ -7,7 +7,7 @@ import java.util.List;
 public record ErroRespostaDTO(
         int status,
         String message,
-        List<ErroCampoDTO> campos
+        List<ErroCampoDTO> errors
 ) {
     //TRATAMENTOS PADRÕES
     public static ErroRespostaDTO cadastroDuplicado(String message, List<ErroCampoDTO> campos){

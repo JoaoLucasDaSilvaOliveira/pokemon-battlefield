@@ -1,0 +1,30 @@
+### 1 - TESTANDO A ROTA DE RETORNO DA CLASSE ENUM
+GET localhost:8080/classe-treinador;
+
+### 2 - TESTANDO OS DADOS MOCADOS E O GET COM E SEM QUERYPARAM
+#GET localhost:8080/treinador?pokemons=onix
+###
+#GET localhost:8080/treinador
+###
+GET localhost:8080/treinador/a1b2c3d4-e5f6-7890-1234-567890abcdef
+
+### 3 - CADASTRANDO UM NOVO TREINADOR
+POST localhost:8080/treinador
+Content-Type: application/json
+
+{
+  "nome": "Treinador cadastrado Via API",
+  "classeTreinador": "ASSASSINO"
+}
+
+### 4 - DELETANDO UM TREINADOR
+DELETE localhost:8080/treinador/2dea269f-84e1-4a28-bacf-a39be2c51f2d
+
+### 5 - ATUALIZANDO UM TREINADOR
+PUT localhost:8080/treinador/f257cea5-9a05-4576-b128-5ac5fa3462c1
+Content-Type: application/json
+
+{
+  "classeTreinador": "GUERREIRO",
+  "nome": "Treinador atualizado 2 "
+}

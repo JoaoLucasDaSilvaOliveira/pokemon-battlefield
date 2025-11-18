@@ -1,5 +1,8 @@
 package org.pokemonbattlefield.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.pokemonbattlefield.model.util.EvolucaoPokemon;
@@ -19,7 +22,7 @@ public class Pokemon {
     private UUID id;
 
     @Column(name = "nome_pokemon")
-    private String nomePokemon;
+    private String nome;
 
     @Column(name = "pontos_vida")
     private Integer pontosVida;
@@ -30,27 +33,52 @@ public class Pokemon {
     @Column(name = "pontos_defesa")
     private Integer pontosDefesa;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "evolucao")
     private EvolucaoPokemon evolucao;
-
-    @Column(name = "qtd_vitorias")
-    private Integer qtdVitorias;
-
-    @Column(name = "qtd_derrotas")
-    private Integer qtdDerrotas;
 
     @Column(name = "tipo")
     private String tipo;
 
     @JoinColumn(name = "id_treinador")
     @ManyToOne
+    @JsonBackReference
     private Treinador treinador;
 
     @ManyToMany(mappedBy = "pokemonsBatalha")
+    @JsonManagedReference
     private List<Batalha> batalhas;
 
-    public Integer getQtdBatalhas (){
-        return (qtdDerrotas != null ? qtdDerrotas : 0) + (qtdVitorias != null ? qtdVitorias : 0);
+    // O @JsonProperty garante que o JSON vai ter um campo "qtdVitorias"
+    @JsonProperty("qtdVitorias")
+    public Integer getQtdVitorias() {
+        if (batalhas == null || batalhas.isEmpty() || treinador == null) {
+            return 0;
+        }
+        // Filtra as batalhas onde o vencedor existe E o ID é igual ao do meu treinador
+        return (int) batalhas.stream()
+                .filter(b -> b.getGanhador() != null &&
+                        b.getGanhador().getId().equals(this.treinador.getId()))
+                .count();
+    }
+
+    @JsonProperty("qtdDerrotas")
+    public Integer getQtdDerrotas() {
+        if (batalhas == null || batalhas.isEmpty() || treinador == null) {
+            return 0;
+        }
+        // Filtra as batalhas onde o vencedor existe E o ID é DIFERENTE do meu treinador
+        return (int) batalhas.stream()
+                .filter(b -> b.getGanhador() != null &&
+                        !b.getGanhador().getId().equals(this.treinador.getId()))
+                .count();
+    }
+
+    // O Jackson usa esse getter também
+    @JsonProperty("qtdBatalhas")
+    public Integer getQtdBatalhas() {
+        // Apenas soma os dois calculados acima
+        return getQtdVitorias() + getQtdDerrotas();
     }
 
 }

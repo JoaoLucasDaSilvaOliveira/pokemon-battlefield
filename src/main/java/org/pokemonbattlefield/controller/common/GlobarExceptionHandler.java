@@ -1,16 +1,21 @@
 package org.pokemonbattlefield.controller.common;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.pokemonbattlefield.controller.dto.ErroCampoDTO;
 import org.pokemonbattlefield.controller.dto.ErroRespostaDTO;
+import org.pokemonbattlefield.exception.DeleteNaoPermitidoException;
 import org.pokemonbattlefield.exception.DuplicadoException;
 import org.pokemonbattlefield.exception.IdInvalidoException;
 import org.pokemonbattlefield.exception.RegistroNaoEncontradoException;
+import org.pokemonbattlefield.model.util.ClasseTreinador;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 
@@ -47,6 +52,44 @@ public class GlobarExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErroRespostaDTO handleRegistroNaoEncontradoException(RegistroNaoEncontradoException e){
         return new ErroRespostaDTO(HttpStatus.NOT_FOUND.value(), e.getTipoEntidade()+" não encontrado", List.of());
+    }
+
+    //PARA EXCLUSÕES NÃO PERMITIDAS (INFRIGEM REGRA DE NEGOCIOS)
+    @ExceptionHandler(DeleteNaoPermitidoException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErroRespostaDTO handleDeleteNaoPermitidoException (DeleteNaoPermitidoException e){
+        return new ErroRespostaDTO(HttpStatus.UNAUTHORIZED.value(), String.format("Exclusão de %s não permitida", e.getEntidade()),
+                e.getMotivos()
+                        .entrySet()
+                        .stream().map(
+                                entry -> new ErroCampoDTO(entry.getKey(), entry.getValue())
+                        ).toList()
+        );
+    }
+
+    //PARA ERROS DE CONVERSÃO DE ENUM
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErroRespostaDTO handleValidationExceptions(Exception ex) {
+
+        // Caso 1: Erro na URL (ex: passar string onde deveria ser enum/int)
+        if (ex instanceof MethodArgumentTypeMismatchException typeMismatchEx) {
+            if (typeMismatchEx.getRequiredType() == ClasseTreinador.class) {
+                return new ErroRespostaDTO(HttpStatus.BAD_REQUEST.value(), "Classe de treinador inexistente", List.of());
+            }
+        }
+
+        // Caso 2: Erro no JSON (ex: valor inválido no corpo da requisição)
+        else if (ex instanceof HttpMessageNotReadableException readableEx) {
+            Throwable cause = readableEx.getCause();
+            if (cause instanceof InvalidFormatException formatEx) {
+                if (formatEx.getTargetType() == ClasseTreinador.class) {
+                    return new ErroRespostaDTO(HttpStatus.BAD_REQUEST.value(), "Classe de treinador inexistente", List.of());
+                }
+            }
+        }
+
+        return new ErroRespostaDTO(HttpStatus.BAD_REQUEST.value(), "Erro na requisição. Verifique os tipos de dados.", List.of());
     }
 
     //PARA ERROS NÃO VISTOS

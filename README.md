@@ -19,8 +19,8 @@ Trata-se de um sistema de batalha de pokemons entre usuários, cada um com o seu
 O projeto baseia-se em três grandes blocos:
 
 - API RESTful para realizar ações (CRUD e Batalhas)
-- Banco de dados relacional
-- Paginas reativas (SPA) para UX-UI
+- Persistência de dados
+- Paginas interativas no estilo retro dos games antigos Pokémon
 
 
 ## Stack utilizada
@@ -36,5 +36,5 @@ O projeto baseia-se em três grandes blocos:
 
 ## Documentação da API
 
-TODO: fazer isso depois
+[Link da documentação completa](https://whimsical.com/pokemonbattlefield-api-7TSsj4pfKyj29tYidostUY)
 

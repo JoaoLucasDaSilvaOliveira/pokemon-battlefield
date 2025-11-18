@@ -1,6 +1,7 @@
-package org.pokemonbattlefield.mapper;
+package org.pokemonbattlefield.controller.mapper;
 
 import org.mapstruct.Mapper;
+import org.pokemonbattlefield.controller.dto.GinasioDTO;
 import org.pokemonbattlefield.model.Ginasio;
 
 @Mapper(componentModel = "spring")

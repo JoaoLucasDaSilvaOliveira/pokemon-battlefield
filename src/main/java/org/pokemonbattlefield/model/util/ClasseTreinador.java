@@ -1,5 +1,12 @@
 package org.pokemonbattlefield.model.util;
 
+import lombok.Getter;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Getter
 public enum ClasseTreinador {
     /*
     MAX BONUSES:
@@ -38,5 +45,26 @@ public enum ClasseTreinador {
         this.bonusDefesa = bonusDefesa;
         this.bonusCura = bonusCura;
         this.descricao = descricao;
+    }
+
+    public static Map<String, Map<String, Object>> getDetalhesClassesComoMap() {
+
+        // 1. Pega todas as constantes do enum (como um array)
+        return Arrays.stream(ClasseTreinador.values())
+
+                // 2. Coleta em um Map
+                .collect(Collectors.toMap(
+
+                        // Chave: O nome da constante (ex: "GUERREIRO")
+                        ClasseTreinador::name,
+
+                        // Valor: Cria um novo Map para os detalhes da classe
+                        classe -> Map.of(
+                                "Bônus ataque", classe.getBonusAtq(),
+                                "Bônus defesa", classe.getBonusDefesa(),
+                                "Bônus cura", classe.getBonusCura(),
+                                "Descricao", classe.getDescricao()
+                        )
+                ));
     }
 }
