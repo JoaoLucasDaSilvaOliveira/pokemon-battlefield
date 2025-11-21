@@ -19,21 +19,22 @@ import org.pokemonbattlefield.exception.RequisicaoMalFeitaException;
 import org.pokemonbattlefield.model.Pokemon;
 import org.pokemonbattlefield.model.Treinador;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.event.ApplicationReadyEvent; // Importante
-import org.springframework.context.event.EventListener; // Importante
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture; // Importante
-import java.util.concurrent.ConcurrentHashMap; // Importante
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class PokemonService {
 
-    // CACHE EM MEMÓRIA: Guarda as páginas já carregadas (Chave: "pagina-tamanho")
+    // CACHE EM MEMÓRIA (Guarda as páginas já visitadas para acesso instantâneo)
     private final Map<String, PokemonListaResponseDTO> cachePaginas = new ConcurrentHashMap<>();
 
     private final PokemonRepository repository;
@@ -45,7 +46,7 @@ public class PokemonService {
     @Qualifier(value = "restClientPokeAPI")
     private final RestClient restClient;
 
-    // --- NOVO: Carrega a primeira página assim que o sistema sobe ---
+    // --- INICIALIZAÇÃO COM RETRY (Para ambientes Cloud como Render) ---
     @EventListener(ApplicationReadyEvent.class)
     public void carregarCacheInicial() {
         System.out.println("🚀 Iniciando pré-carregamento da PokeAPI...");
@@ -56,12 +57,12 @@ public class PokemonService {
 
             while (tentativas < 3 && !sucesso) {
                 try {
-                    // Pequeno delay inicial para garantir que a rede do container subiu
-                    if (tentativas == 0) Thread.sleep(3000);
+                    // Delay inicial de 5s para garantir que o container e a rede estejam 100%
+                    if (tentativas == 0) Thread.sleep(5000);
 
-                    // Carrega página 0 e 1
+                    // Tenta carregar as páginas iniciais
                     carregarPaginaNoCache(0, 30);
-                    Thread.sleep(1000); // Delay amigável para não tomar bloqueio da API
+                    Thread.sleep(2000); // Delay entre chamadas para não estourar rate limit
                     carregarPaginaNoCache(1, 30);
 
                     sucesso = true;
@@ -79,18 +80,20 @@ public class PokemonService {
             }
 
             if (!sucesso) {
-                System.err.println("❌ Falha crítica no prefetch após 3 tentativas. O sistema funcionará, mas sem cache inicial.");
+                System.err.println("❌ Falha crítica no prefetch após 3 tentativas. O cache inicial não foi carregado.");
             }
         });
     }
 
-    public PokemonListaResponseDTO findPokemonsOnPokeAPI(String nome, String tipo, Integer pagina) {
+    public PokemonListaResponseDTO findPokemonsOnPokeAPI(String nome, String tipo, Integer pagina, Integer tamanhoPagina) {
 
-        // 1. Busca Específica (Mantém lógica antiga, sem cache de lista)
+        // 1. Validação de Filtros
+        if ((nome != null && !nome.isBlank()) && (tipo != null && !tipo.isBlank())){
+            throw new RequisicaoMalFeitaException("Deve passar apenas um dos filtros: nome ou tipo");
+        }
+
+        // 2. Busca por Nome (Busca direta, sem cache de lista)
         if (nome != null && !nome.isBlank()){
-            if (tipo != null && !tipo.isBlank()){
-                throw new RequisicaoMalFeitaException("Deve passar apenas um dos filtros: nome ou tipo");
-            }
             try {
                 PokemonExternoDTO pokemonEncontrado = findByNameOrIdOnPokeAPI(nome);
                 return new PokemonListaResponseDTO(1, null, null, List.of(pokemonEncontrado));
@@ -99,47 +102,47 @@ public class PokemonService {
             }
         }
 
-        // 2. Listagem Geral (COM CACHE E PREFETCH)
-        String chaveCache = pagina + "-" + 30;
-
+        // 3. Listagem Geral (COM CACHE E PREFETCH)
+        String chaveCache = pagina + "-" + tamanhoPagina;
         PokemonListaResponseDTO resposta;
 
         if (cachePaginas.containsKey(chaveCache)) {
-            // HIT: Achou no cache! Retorna instantaneamente.
+            // HIT: Retorna do cache instantaneamente
             resposta = cachePaginas.get(chaveCache);
         } else {
-            // MISS: Não tem no cache, busca agora (bloqueia user rapidinho) e salva.
-            resposta = montarRequisicaoPaginadaComDetalhes("/pokemon", pagina, 30);
-            if (resposta.results() != null && !resposta.results().isEmpty()) {
+            // MISS: Busca agora (bloqueante)
+            resposta = montarRequisicaoPaginadaComDetalhes("/pokemon", pagina, tamanhoPagina);
+            if (resposta != null && resposta.results() != null && !resposta.results().isEmpty()) {
                 cachePaginas.put(chaveCache, resposta);
             }
         }
 
-        // 3. PREFETCH: Dispara thread para buscar a PRÓXIMA página enquanto o usuário vê a atual
-        // Assim, quando ele clicar em "Próximo", já vai estar no cache.
-        CompletableFuture.runAsync(() -> carregarPaginaNoCache(pagina + 1, 30));
+        // Dispara prefetch da PRÓXIMA página em background
+        CompletableFuture.runAsync(() -> carregarPaginaNoCache(pagina + 1, tamanhoPagina));
 
         return resposta;
     }
 
-    // Método auxiliar para popular o cache em background
+    // Método auxiliar seguro para carregar cache em background
     private void carregarPaginaNoCache(Integer pagina, Integer tamanho) {
         String chave = pagina + "-" + tamanho;
+
         // Só busca se ainda não tiver no cache
         if (!cachePaginas.containsKey(chave)) {
             try {
                 PokemonListaResponseDTO dto = montarRequisicaoPaginadaComDetalhes("/pokemon", pagina, tamanho);
+
                 if (dto != null && dto.results() != null && !dto.results().isEmpty()) {
                     cachePaginas.put(chave, dto);
-                    System.out.println("📦 Página " + pagina + " pré-carregada no cache.");
+                    System.out.println("📦 Página " + pagina + " adicionada ao cache.");
                 }
             } catch (Exception e) {
-                System.err.println("Erro no prefetch da página " + pagina + ": " + e.getMessage());
+                // Loga o erro mas não derruba a thread principal
+                System.err.println("Erro silencioso no prefetch da página " + pagina + ": " + e.getMessage());
+                e.printStackTrace(); //Descomente se quiser ver o stacktrace completo no log
             }
         }
     }
-
-    // --- Seus métodos originais abaixo ---
 
     public PokemonExternoDTO findByNameOrIdOnPokeAPI(String nomeOuId) {
         try {
@@ -160,37 +163,47 @@ public class PokemonService {
     private PokemonListaResponseDTO montarRequisicaoPaginadaComDetalhes(String path, Integer pagina, Integer tamanhoPagina) {
         Integer offset = pagina * tamanhoPagina;
 
-        PokeApiListResponse rawList = restClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path(path)
-                        .queryParam("limit", tamanhoPagina)
-                        .queryParam("offset", offset)
-                        .build())
-                .retrieve()
-                .body(PokeApiListResponse.class);
+        try {
+            // 1. Busca a lista "crua" (só nomes)
+            PokeApiListResponse rawList = restClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(path)
+                            .queryParam("limit", tamanhoPagina)
+                            .queryParam("offset", offset)
+                            .build())
+                    .retrieve()
+                    .body(PokeApiListResponse.class);
 
-        if (rawList == null || rawList.results() == null) {
+            if (rawList == null || rawList.results() == null) {
+                return new PokemonListaResponseDTO(0, null, null, List.of());
+            }
+
+            // 2. Hidratação paralela resiliente
+            List<PokemonExternoDTO> listaDetalhada = rawList.results().parallelStream()
+                    .map(resumo -> {
+                        try {
+                            return findByNameOrIdOnPokeAPI(resumo.name());
+                        } catch (Exception e) {
+                            return null; // Se um falhar, ignora e continua
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            return new PokemonListaResponseDTO(
+                    rawList.count(),
+                    rawList.next(),
+                    rawList.previous(),
+                    listaDetalhada
+            );
+        } catch (HttpServerErrorException e) {
+            System.err.println("🚨 PokeAPI retornou erro 500: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            System.err.println("🚨 Erro ao buscar lista paginada: " + e.getMessage());
+            // Retorna lista vazia em vez de quebrar tudo, se preferir
             return new PokemonListaResponseDTO(0, null, null, List.of());
         }
-
-        // Parallel Stream manteve a hidratação rápida
-        List<PokemonExternoDTO> listaDetalhada = rawList.results().parallelStream()
-                .map(resumo -> {
-                    try {
-                        return findByNameOrIdOnPokeAPI(resumo.name());
-                    } catch (Exception e) {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .toList();
-
-        return new PokemonListaResponseDTO(
-                rawList.count(),
-                rawList.next(),
-                rawList.previous(),
-                listaDetalhada
-        );
     }
 
     private PokeTypesResponse montarRequisicaoPokeTypes(){
