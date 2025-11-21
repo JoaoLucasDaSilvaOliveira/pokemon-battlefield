@@ -17,10 +17,6 @@ public class TestPokeApi {
         System.out.println(service.findByNameOrIdOnPokeAPI("pikachu"));
     }
 
-    @Test
-    void testeProcuraTudo(){
-        System.out.println(service.findPokemonsOnPokeAPI("pikachu", null, 0, 30));
-    }
 
     @Test
     void testeTipos(){

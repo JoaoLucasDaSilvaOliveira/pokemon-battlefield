@@ -46,7 +46,8 @@ public class PokemonService {
     @Qualifier(value = "restClientPokeAPI")
     private final RestClient restClient;
 
-    // --- INICIALIZAÇÃO COM RETRY (Para ambientes Cloud como Render) ---
+    // --- INICIALIZAÇÃO INTELIGENTE (Executa ao subir a aplicação) ---
+    // Tenta carregar as primeiras páginas. Se falhar (rede/deploy), tenta de novo algumas vezes.
     @EventListener(ApplicationReadyEvent.class)
     public void carregarCacheInicial() {
         System.out.println("🚀 Iniciando pré-carregamento da PokeAPI...");
@@ -103,7 +104,7 @@ public class PokemonService {
         }
 
         // 3. Listagem Geral (COM CACHE E PREFETCH)
-        String chaveCache = pagina + "- 30";
+        String chaveCache = pagina + "-30";
         PokemonListaResponseDTO resposta;
 
         if (cachePaginas.containsKey(chaveCache)) {
@@ -139,7 +140,7 @@ public class PokemonService {
             } catch (Exception e) {
                 // Loga o erro mas não derruba a thread principal
                 System.err.println("Erro silencioso no prefetch da página " + pagina + ": " + e.getMessage());
-                e.printStackTrace(); //Descomente se quiser ver o stacktrace completo no log
+                // e.printStackTrace(); // Descomente se quiser ver o stacktrace completo no log
             }
         }
     }
@@ -236,6 +237,7 @@ public class PokemonService {
         repository.deleteById(id);
     }
 
+    // Records internos auxiliares para ler JSON parcial
     private record PokeApiListResponse(
             int count,
             String next,
