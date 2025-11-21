@@ -49,10 +49,38 @@ public class PokemonService {
     @EventListener(ApplicationReadyEvent.class)
     public void carregarCacheInicial() {
         System.out.println("🚀 Iniciando pré-carregamento da PokeAPI...");
+
         CompletableFuture.runAsync(() -> {
-            carregarPaginaNoCache(0, 30);
-            carregarPaginaNoCache(1, 30); // Já deixa a 2ª engatilhada também
-            System.out.println("✅ Cache inicial da PokeAPI pronto!");
+            int tentativas = 0;
+            boolean sucesso = false;
+
+            while (tentativas < 3 && !sucesso) {
+                try {
+                    // Pequeno delay inicial para garantir que a rede do container subiu
+                    if (tentativas == 0) Thread.sleep(3000);
+
+                    // Carrega página 0 e 1
+                    carregarPaginaNoCache(0, 30);
+                    Thread.sleep(1000); // Delay amigável para não tomar bloqueio da API
+                    carregarPaginaNoCache(1, 30);
+
+                    sucesso = true;
+                    System.out.println("✅ Cache inicial da PokeAPI carregado com sucesso!");
+
+                } catch (Exception e) {
+                    tentativas++;
+                    System.err.println("⚠️ Falha no prefetch (Tentativa " + tentativas + "/3): " + e.getMessage());
+                    try {
+                        Thread.sleep(5000); // Espera 5s antes de tentar de novo
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+
+            if (!sucesso) {
+                System.err.println("❌ Falha crítica no prefetch após 3 tentativas. O sistema funcionará, mas sem cache inicial.");
+            }
         });
     }
 
