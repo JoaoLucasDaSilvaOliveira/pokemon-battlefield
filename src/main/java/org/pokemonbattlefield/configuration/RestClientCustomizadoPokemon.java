@@ -11,6 +11,8 @@ public class RestClientCustomizadoPokemon {
     public RestClient restClientPokeAPI (RestClient.Builder builder){
         return builder
                 .baseUrl("https://pokeapi.co/api/v2")
+                .defaultHeader("User-Agent", "PokemonBattlefield-App/1.0 (Java Application)")
+                .defaultHeader("Accept", "application/json")
                 .build();
     }
 }
