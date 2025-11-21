@@ -9,7 +9,7 @@ import java.util.UUID;
 @Component
 public class URIConfigurer {
 
-    public static URI createLocation (UUID idSalvo){
+    public static <T> URI createLocation (T idSalvo){
         return ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")

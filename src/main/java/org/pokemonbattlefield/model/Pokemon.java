@@ -9,6 +9,7 @@ import org.pokemonbattlefield.model.util.AcaoPokemon;
 import org.pokemonbattlefield.model.util.EvolucaoPokemon;
 
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table
@@ -54,6 +55,15 @@ public class Pokemon {
     @ManyToMany(mappedBy = "pokemonsBatalha")
     @JsonManagedReference
     private List<Batalha> batalhas;
+
+    @ElementCollection
+    @CollectionTable (
+            name = "pokemon_sprites",
+            joinColumns = @JoinColumn(name = "id_pokemon")
+    )
+    @MapKeyColumn(name = "sprite_key")
+    @Column(name = "sprite_url")
+    Map<String, String> sprites;
 
     // O @JsonProperty garante que o JSON vai ter um campo "qtdVitorias"
     @JsonProperty("qtdVitorias")

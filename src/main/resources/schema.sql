@@ -70,3 +70,13 @@ CREATE TABLE acao_pokemons (
                            ON DELETE CASCADE
                            ON UPDATE CASCADE
 );
+
+CREATE TABLE pokemon_sprites (
+    id_pokemon INT NOT NULL,
+    sprite_key VARCHAR(100) NOT NULL,
+    sprite_url VARCHAR(250) NOT NULL,
+
+    CONSTRAINT id_pokemon_FK_sprites FOREIGN KEY(id_pokemon) REFERENCES pokemon(id)
+                             ON DELETE CASCADE
+                             ON UPDATE CASCADE
+);

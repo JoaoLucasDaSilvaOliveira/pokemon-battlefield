@@ -41,7 +41,7 @@ public class TreinadorService implements IdValidador<UUID> {
             //NESSE CASO O TREINADOR QUE ESTAMOS TENTANDO EXCLUIR POSSUI POKEMONS
             throw new DeleteNaoPermitidoException(TIPO_ENTIDADE.toLowerCase(), Map.of(
                     "Motivo", "Treinador possui pokemons",
-                    "Solução","Para deletar o treinador é preciso deletar os seus pokemons!"
+                    "Solução","Para desvincular o treinador é preciso desvincular os seus pokemons!"
                 )
             );
         }

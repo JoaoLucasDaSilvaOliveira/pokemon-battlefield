@@ -13,4 +13,5 @@ public interface PokemonMapper {
     Pokemon deDtoParaPokemon(PokemonExternoDTO dto);
     @Named("toDetalhesPokemonDTO")
     DetalhesPokemonDTO toDetalhesPokemonDTO (Pokemon pokemon);
+
 }

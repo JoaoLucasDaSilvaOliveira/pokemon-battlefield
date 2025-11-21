@@ -16,8 +16,13 @@ public class DuplicadoException extends RuntimeException {
         return Motivos.UPDATE_DUPLICADO.lancarException(entidade);
     }
 
+    public static DuplicadoException createPokemonDuplicado (){
+        throw new DuplicadoException(Motivos.CREATE_DUPLICADO_POKEMON.message);
+    }
+
     enum Motivos {
         CREATE_DUPLICADO("Já existe um %s com essas informações"),
+        CREATE_DUPLICADO_POKEMON("Esse pokemon já está cadastrado para esse treinador"),
         UPDATE_DUPLICADO("O %s a ser atualizado é identico ao já cadastrado");
 
         Motivos(String message){

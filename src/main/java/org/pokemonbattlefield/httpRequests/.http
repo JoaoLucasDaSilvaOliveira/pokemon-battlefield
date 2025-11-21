@@ -4,7 +4,7 @@ GET localhost:8080/classe-treinador;
 ### 2 - TESTANDO OS DADOS MOCADOS E O GET COM E SEM QUERYPARAM
 #GET localhost:8080/treinador?pokemons=onix
 ###
-#GET localhost:8080/treinador
+GET localhost:8080/treinador
 ###
 GET localhost:8080/treinador/a1b2c3d4-e5f6-7890-1234-567890abcdef
 
@@ -27,4 +27,16 @@ Content-Type: application/json
 {
   "classeTreinador": "GUERREIRO",
   "nome": "Treinador atualizado 2 "
+}
+
+### 6 - OBTENDO POKEMON POR ID
+GET localhost:8080/pokemon?pagina=3
+
+### 7 - CADASTRANDO POKEMON NO TREINADOR
+POST localhost:8080/pokemon
+Content-Type: application/json
+
+{
+  "idPokemon": 1,
+  "idTreinador": "f0e9d8c7-b6a5-4321-fedc-ba9876543210"
 }
