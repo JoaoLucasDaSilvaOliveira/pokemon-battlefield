@@ -5,10 +5,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.pokemonbattlefield.model.util.AcaoPokemon;
 import org.pokemonbattlefield.model.util.EvolucaoPokemon;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @Entity
 @Table
@@ -18,8 +19,7 @@ public class Pokemon {
     public Pokemon (){}
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private Integer id;
 
     @Column(name = "nome_pokemon")
     private String nome;
@@ -40,6 +40,13 @@ public class Pokemon {
     @Column(name = "tipo")
     private String tipo;
 
+    @ElementCollection
+    @CollectionTable(
+            name = "acao_pokemons",
+            joinColumns = @JoinColumn(name = "id_pokemon")
+    )
+    private List<AcaoPokemon> acoesPokemon;
+
     @JoinColumn(name = "id_treinador")
     @ManyToOne
     @JsonBackReference
@@ -48,6 +55,15 @@ public class Pokemon {
     @ManyToMany(mappedBy = "pokemonsBatalha")
     @JsonManagedReference
     private List<Batalha> batalhas;
+
+    @ElementCollection
+    @CollectionTable (
+            name = "pokemon_sprites",
+            joinColumns = @JoinColumn(name = "id_pokemon")
+    )
+    @MapKeyColumn(name = "sprite_key")
+    @Column(name = "sprite_url")
+    Map<String, String> sprites;
 
     // O @JsonProperty garante que o JSON vai ter um campo "qtdVitorias"
     @JsonProperty("qtdVitorias")

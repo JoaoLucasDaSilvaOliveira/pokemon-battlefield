@@ -3,10 +3,7 @@ package org.pokemonbattlefield.controller.common;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.pokemonbattlefield.controller.dto.ErroCampoDTO;
 import org.pokemonbattlefield.controller.dto.ErroRespostaDTO;
-import org.pokemonbattlefield.exception.DeleteNaoPermitidoException;
-import org.pokemonbattlefield.exception.DuplicadoException;
-import org.pokemonbattlefield.exception.IdInvalidoException;
-import org.pokemonbattlefield.exception.RegistroNaoEncontradoException;
+import org.pokemonbattlefield.exception.*;
 import org.pokemonbattlefield.model.util.ClasseTreinador;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -90,6 +87,13 @@ public class GlobarExceptionHandler {
         }
 
         return new ErroRespostaDTO(HttpStatus.BAD_REQUEST.value(), "Erro na requisição. Verifique os tipos de dados.", List.of());
+    }
+
+    //PARA ERROS DE REQUISIÇÃO MAL FEITA
+    @ExceptionHandler(RequisicaoMalFeitaException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErroRespostaDTO handleDeleteNaoPermitidoException (RequisicaoMalFeitaException e){
+        return new ErroRespostaDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), List.of());
     }
 
     //PARA ERROS NÃO VISTOS

@@ -6,7 +6,7 @@ CREATE TABLE treinador (
 );
 
 CREATE TABLE pokemon (
-                         id UUID PRIMARY KEY,
+                         id INT PRIMARY KEY,
                          nome_pokemon VARCHAR(100) NOT NULL,
                          pontos_vida INT NOT NULL,
                          pontos_ataque INT NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE batalha (
 
 CREATE TABLE batalha_pokemons (
                                   id_batalha UUID NOT NULL,
-                                  id_pokemon UUID NOT NULL,
+                                  id_pokemon INT NOT NULL,
 
                                   CONSTRAINT id_batalha_FK FOREIGN KEY (id_batalha) REFERENCES batalha(id)
                                       ON DELETE NO ACTION
@@ -58,4 +58,25 @@ CREATE TABLE batalha_pokemons (
                                   CONSTRAINT id_pokemon_FK FOREIGN KEY (id_pokemon) REFERENCES pokemon(id)
                                       ON DELETE NO ACTION
                                       ON UPDATE CASCADE
+);
+
+CREATE TABLE acao_pokemons (
+    id_pokemon INT,
+    nome_acao VARCHAR (100) NOT NULL,
+    valor_acao INT NOT NULL,
+    tipo_acao VARCHAR(30) NOT NULL,
+
+    CONSTRAINT id_pokemon_acao_FK FOREIGN KEY(id_pokemon) REFERENCES pokemon(id)
+                           ON DELETE CASCADE
+                           ON UPDATE CASCADE
+);
+
+CREATE TABLE pokemon_sprites (
+    id_pokemon INT NOT NULL,
+    sprite_key VARCHAR(100) NOT NULL,
+    sprite_url VARCHAR(250) NOT NULL,
+
+    CONSTRAINT id_pokemon_FK_sprites FOREIGN KEY(id_pokemon) REFERENCES pokemon(id)
+                             ON DELETE CASCADE
+                             ON UPDATE CASCADE
 );

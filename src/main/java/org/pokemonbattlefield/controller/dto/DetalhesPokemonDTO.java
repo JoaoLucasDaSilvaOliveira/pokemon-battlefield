@@ -1,10 +1,8 @@
 package org.pokemonbattlefield.controller.dto;
 
-import java.util.UUID;
-
 public record DetalhesPokemonDTO(
 
-        UUID id,
+        Integer id,
         String nome,
         String tipo
 
