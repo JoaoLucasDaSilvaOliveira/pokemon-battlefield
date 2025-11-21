@@ -167,11 +167,16 @@ public class PokemonService {
         try {
             // 1. Busca a lista "crua" (só nomes)
             PokeApiListResponse rawList = restClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(path)
-                            .queryParam("limit", tamanhoPagina)
-                            .queryParam("offset", offset)
-                            .build())
+                    .uri(uriBuilder -> {
+                        uriBuilder.path(path).queryParam("limit", tamanhoPagina);
+
+                        // ALTERAÇÃO: Só envia offset se for maior que 0
+                        if (offset > 0) {
+                            uriBuilder.queryParam("offset", offset);
+                        }
+
+                        return uriBuilder.build();
+                    })
                     .retrieve()
                     .body(PokeApiListResponse.class);
 
