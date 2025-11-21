@@ -85,7 +85,7 @@ public class PokemonService {
         });
     }
 
-    public PokemonListaResponseDTO findPokemonsOnPokeAPI(String nome, String tipo, Integer pagina, Integer tamanhoPagina) {
+    public PokemonListaResponseDTO findPokemonsOnPokeAPI(String nome, String tipo, Integer pagina) {
 
         // 1. Validação de Filtros
         if ((nome != null && !nome.isBlank()) && (tipo != null && !tipo.isBlank())){
@@ -103,7 +103,7 @@ public class PokemonService {
         }
 
         // 3. Listagem Geral (COM CACHE E PREFETCH)
-        String chaveCache = pagina + "-" + tamanhoPagina;
+        String chaveCache = pagina + "- 30";
         PokemonListaResponseDTO resposta;
 
         if (cachePaginas.containsKey(chaveCache)) {
@@ -111,14 +111,14 @@ public class PokemonService {
             resposta = cachePaginas.get(chaveCache);
         } else {
             // MISS: Busca agora (bloqueante)
-            resposta = montarRequisicaoPaginadaComDetalhes("/pokemon", pagina, tamanhoPagina);
+            resposta = montarRequisicaoPaginadaComDetalhes("/pokemon", pagina, 30);
             if (resposta != null && resposta.results() != null && !resposta.results().isEmpty()) {
                 cachePaginas.put(chaveCache, resposta);
             }
         }
 
         // Dispara prefetch da PRÓXIMA página em background
-        CompletableFuture.runAsync(() -> carregarPaginaNoCache(pagina + 1, tamanhoPagina));
+        CompletableFuture.runAsync(() -> carregarPaginaNoCache(pagina + 1, 30));
 
         return resposta;
     }
