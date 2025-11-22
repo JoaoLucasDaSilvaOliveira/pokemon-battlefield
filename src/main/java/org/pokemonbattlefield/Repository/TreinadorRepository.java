@@ -22,4 +22,6 @@ public interface TreinadorRepository extends JpaRepository<Treinador, UUID> {
     List<Treinador> findTreinadorByNomePokemon(String nomePokemon);
 
     boolean existsTreinadorByNomeIgnoreCase(String nome);
+
+    boolean existsTreinadorById(UUID id);
 }

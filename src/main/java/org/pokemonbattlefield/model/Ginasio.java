@@ -13,7 +13,6 @@ public class Ginasio {
     public Ginasio (){}
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String nome;
@@ -21,5 +20,8 @@ public class Ginasio {
     private Integer capacidade;
 
     private String bairro;
+
+    @Column(name = "background_image")
+    private String backgroundImage;
 
 }

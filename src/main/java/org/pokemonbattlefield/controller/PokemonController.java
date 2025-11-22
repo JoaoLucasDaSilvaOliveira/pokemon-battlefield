@@ -35,14 +35,14 @@ public class PokemonController {
 
     @GetMapping("/tipo")
     public ResponseEntity<PokeTypesResponse> obterTiposDosPokemons(){
-        return new ResponseEntity<>(service.todosOsTiposDosPokemons(), HttpStatus.FOUND);
+        return new ResponseEntity<>(service.todosOsTiposDosPokemons(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PokemonExternoDTO> obterPokemonPorId(
-            @PathVariable @Positive String id
+            @PathVariable @Positive(message = "O id deve ser positivo") String id
     ){
-        return new ResponseEntity<>(service.findByNameOrIdOnPokeAPI(id), HttpStatus.FOUND);
+        return new ResponseEntity<>(service.findByNameOrIdOnPokeAPI(id), HttpStatus.OK);
     }
 
     @PostMapping

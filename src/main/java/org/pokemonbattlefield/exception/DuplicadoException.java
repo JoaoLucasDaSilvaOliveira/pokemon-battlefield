@@ -22,7 +22,7 @@ public class DuplicadoException extends RuntimeException {
 
     enum Motivos {
         CREATE_DUPLICADO("Já existe um %s com essas informações"),
-        CREATE_DUPLICADO_POKEMON("Esse pokemon já está cadastrado para esse treinador"),
+        CREATE_DUPLICADO_POKEMON("Esse pokemon já está cadastrado para um treinador"),
         UPDATE_DUPLICADO("O %s a ser atualizado é identico ao já cadastrado");
 
         Motivos(String message){

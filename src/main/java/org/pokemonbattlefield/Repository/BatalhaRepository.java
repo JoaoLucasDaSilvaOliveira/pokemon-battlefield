@@ -14,4 +14,10 @@ public interface BatalhaRepository extends JpaRepository<Batalha, UUID> {
             "SELECT COUNT (b) > 0 FROM Batalha b JOIN b.pokemonsBatalha p WHERE p.id = ?1"
     )
     boolean existsBatalhaByPokemonId(Integer id);
+
+    Integer countBatalhaByGanhador_Id(UUID ganhadorId);
+
+    Integer countDistinctByPokemonsBatalha_Treinador_Id(UUID id);
+
+    List<Batalha> findBatalhaByPokemonsBatalha_Treinador_Id(UUID idTreinadorSanitizado);
 }

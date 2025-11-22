@@ -103,6 +103,10 @@ public class PokemonService {
             }
         }
 
+        if (tipo != null && !tipo.isBlank()){
+            return buscarPokemonsPorTipoPaginado(tipo, pagina);
+        }
+
         // 3. Listagem Geral (COM CACHE E PREFETCH)
         String chaveCache = pagina + "-30";
         PokemonListaResponseDTO resposta;
@@ -160,6 +164,63 @@ public class PokemonService {
     public PokeTypesResponse todosOsTiposDosPokemons(){
         return apiMapper.normalize(montarRequisicaoPokeTypes());
     }
+
+    private PokemonListaResponseDTO buscarPokemonsPorTipoPaginado(String tipo, Integer pagina) {
+        try {
+            // 1. Busca o tipo completo na PokeAPI
+            PokeApiTypeResponse typeResponse = restClient.get()
+                    .uri("/type/{tipo}", tipo.toLowerCase())
+                    .retrieve()
+                    .body(PokeApiTypeResponse.class);
+
+            if (typeResponse == null || typeResponse.pokemon() == null) {
+                return new PokemonListaResponseDTO(0, null, null, List.of());
+            }
+
+            // 2. Paginação em Memória (A API retorna TODOS os pokémons do tipo de uma vez)
+            List<PokeApiResumo> todosOsPokemons = typeResponse.pokemon().stream()
+                    .map(TypePokemonEntry::pokemon)
+                    .toList();
+
+            int total = todosOsPokemons.size();
+            int pageSize = 30;
+            int fromIndex = pagina * pageSize;
+
+            // Se a página solicitada estiver fora do alcance, retorna lista vazia
+            if (fromIndex >= total) {
+                return new PokemonListaResponseDTO(total, null, null, List.of());
+            }
+
+            int toIndex = Math.min(fromIndex + pageSize, total);
+            List<PokeApiResumo> paginaResumos = todosOsPokemons.subList(fromIndex, toIndex);
+
+            // 3. Hidratação Paralela (Busca detalhes de cada Pokémon da página)
+            List<PokemonExternoDTO> listaDetalhada = paginaResumos.parallelStream()
+                    .map(resumo -> {
+                        try {
+                            return findByNameOrIdOnPokeAPI(resumo.name());
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            // Gera strings de next/previous simuladas (opcional, apenas para manter padrão)
+            String next = (toIndex < total) ? String.valueOf(pagina + 1) : null;
+            String previous = (pagina > 0) ? String.valueOf(pagina - 1) : null;
+
+            return new PokemonListaResponseDTO(total, next, previous, listaDetalhada);
+
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new RegistroNaoEncontradoException("Tipo não encontrado: " + tipo);
+        }
+    }
+
+    private record PokeApiTypeResponse(List<TypePokemonEntry> pokemon) {}
+
+    private record TypePokemonEntry(PokeApiResumo pokemon) {}
+
 
     private PokemonListaResponseDTO montarRequisicaoPaginadaComDetalhes(String path, Integer pagina, Integer tamanhoPagina) {
         Integer offset = pagina * tamanhoPagina;
@@ -233,6 +294,7 @@ public class PokemonService {
     }
 
     public void desvincular(Integer id) {
+        if (!repository.existsById(id)) throw new RegistroNaoEncontradoException("Pokemon");
         if (batalhaRepository.existsBatalhaByPokemonId(id)){
             throw new DeleteNaoPermitidoException("Pokemon", Map.of(
                     "Motivo", "O pokemón já possui batalhas registradas",
@@ -254,5 +316,20 @@ public class PokemonService {
 
     public boolean verificaDono(Integer id){
         return repository.existsPokemonComTreinador(id);
+    }
+
+    public List<Pokemon> findPokemonsById(List<Integer> id){
+        List<Pokemon> pokemonsById = repository.findAllById(id);
+        if (pokemonsById.isEmpty() || pokemonsById.size() < 2){
+            throw new RequisicaoMalFeitaException("Devem ser informados no mínimo 2 pokemons");
+        }
+        return pokemonsById;
+    }
+
+    public void atualizarPokemon(Pokemon pokemon){
+        Pokemon oldPokemon = repository.findById(pokemon.getId()).orElseThrow(()-> new RegistroNaoEncontradoException("Pokemon"));
+        if (!oldPokemon.equals(pokemon)){
+            repository.save(pokemon);
+        }
     }
 }

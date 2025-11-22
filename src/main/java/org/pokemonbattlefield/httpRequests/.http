@@ -30,7 +30,8 @@ Content-Type: application/json
 }
 
 ### 6 - OBTENDO POKEMON POR ID
-GET localhost:8080/pokemon?pagina=3
+#GET localhost:8080/pokemon?pagina=3
+GET localhost:8080/pokemon?tipo=GRASS
 
 ### 7 - CADASTRANDO POKEMON NO TREINADOR
 POST localhost:8080/pokemon
@@ -40,3 +41,12 @@ Content-Type: application/json
   "idPokemon": 1,
   "idTreinador": "f0e9d8c7-b6a5-4321-fedc-ba9876543210"
 }
+
+### 8 - OBTER TODOS OS GINASIOS
+GET localhost:8080/ginasio
+
+### 9 - OBTER GINASIO POR ID
+GET localhost:8080/ginasio/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12
+
+### 10 - OBTER TODAS AS BATALHAS
+GET localhost:8080/batalha?id-treinador=f0e9d8c7-b6a5-4321-fedc-ba9876543210
