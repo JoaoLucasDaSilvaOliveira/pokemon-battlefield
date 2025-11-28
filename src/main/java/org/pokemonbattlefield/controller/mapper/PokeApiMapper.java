@@ -49,8 +49,6 @@ public class PokeApiMapper {
         // 4. Mapear Ações (Moves) BUSCANDO DA API REAL
         List<AcaoPokemon> acoes = mapearAcoes(raw.moves(), ataquePokemon, defesaPokemon);
 
-        boolean temDono = repository.existsPokemonComTreinador(id);
-
         return new PokemonExternoDTO(
                 id,
                 raw.name(),
@@ -60,8 +58,7 @@ public class PokeApiMapper {
                 evolucao,
                 acoes,
                 mapaSprites,
-                tipo,
-                temDono
+                tipo
         );
     }
 

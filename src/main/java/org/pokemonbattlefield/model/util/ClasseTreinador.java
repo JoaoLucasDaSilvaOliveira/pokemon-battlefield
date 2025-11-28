@@ -16,23 +16,23 @@ public enum ClasseTreinador {
      */
     GUERREIRO(
             4,4, 1,
-            "Durável e confiável. O guerreiro possui vida e ataques balanceados com uma pequena taxa de cura"
+            "Sem desculpas, só melhore. O guerreiro possui vida e ataques balanceados com uma pequena taxa de cura"
     ),
     ESTRATEGISTA(
             3,3,3,
-            "Balanceado, como tudo deve ser. O Estrategista possui o mesmo nível de ataque, defesa e cura"
+            "Perfeitamente balanceado, tudo deveria ser assim também. O Estrategista possui o mesmo nível de ataque, defesa e cura"
     ),
     ASSASSINO(
             6,0,0,
-            "A lâmina mais mortal é aquela que não se vê. O assassino possui muito dano, mas cuidado ele pode ser muito frágil"
+            "A lâmina que não se vê é a mais mortífera. O assassino possui muito dano, mas cuidado ele pode ser muito frágil"
     ),
     TANQUE(
             0,6,0,
-            "Muralha de guerra. O tanque possui muita defesa, mas inflinge pouco dano"
+                "Eu toquei nas estrelas e vi a gloriosa luz de mil sóis! Agora cegado por tal elegância, que escolha tenho eu senão... buscar a escuridão. O tanque possui muita defesa, mas inflinge pouco dano"
     ),
     CURADOR(
             0,0 ,6,
-            "Morto não ganha batalha. O curador tem uma alta capacidade de cura mas pode ser frágil, cuidado com os perigos perto dele"
+            "Você nem é tão bom assim, é um fracassado. O curador tem uma alta capacidade de cura mas pode ser frágil, cuidado com os perigos perto dele"
     );
 
     private final Integer bonusAtq;

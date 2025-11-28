@@ -8,10 +8,13 @@ import org.pokemonbattlefield.controller.dto.ApiPokemon.PokeTypesResponse;
 import org.pokemonbattlefield.controller.dto.ApiPokemon.PokemonListaResponseDTO;
 import org.pokemonbattlefield.controller.dto.CadastrarPokemonDTO;
 import org.pokemonbattlefield.controller.dto.PokemonExternoDTO;
+import org.pokemonbattlefield.controller.dto.VerificaDonoPokemonDTO;
 import org.pokemonbattlefield.controller.util.URIConfigurer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("pokemon")
@@ -55,6 +58,11 @@ public class PokemonController {
     public ResponseEntity<Void> deletarPokemon(@PathVariable Integer id){
         service.desvincular(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/hasOwner")
+    public ResponseEntity<Map<String, Boolean>> verificarDono (@RequestBody VerificaDonoPokemonDTO dto){
+        return new ResponseEntity<>(service.verificaDono(dto), HttpStatus.OK);
     }
 
 }

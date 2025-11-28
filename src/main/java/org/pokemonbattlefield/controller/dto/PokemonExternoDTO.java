@@ -15,7 +15,6 @@ public record PokemonExternoDTO (
         EvolucaoPokemon evolucao,
         List<AcaoPokemon> acoesPokemon,
         Map<String, String> sprites,
-        String tipo,
-        boolean temDono
+        String tipo
 ) {
 }

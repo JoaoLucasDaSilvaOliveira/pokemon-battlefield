@@ -42,4 +42,6 @@ public class BatalhaController {
         UUID idBatalha = service.registrarBatalha(dto);
         return ResponseEntity.created(URIConfigurer.createLocation(idBatalha)).build();
     }
+
+
 }

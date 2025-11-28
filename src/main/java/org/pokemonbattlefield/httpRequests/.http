@@ -50,3 +50,12 @@ GET localhost:8080/ginasio/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12
 
 ### 10 - OBTER TODAS AS BATALHAS
 GET localhost:8080/batalha?id-treinador=f0e9d8c7-b6a5-4321-fedc-ba9876543210
+
+
+### 11 - TESTANDO PATERNIDADE DO POKEMON
+POST localhost:8080/pokemon/hasOwner
+Content-Type: application/json
+
+{
+  "pokemonsIds": [1,2,3]
+}

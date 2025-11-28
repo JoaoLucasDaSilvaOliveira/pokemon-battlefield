@@ -10,6 +10,7 @@ import org.pokemonbattlefield.controller.dto.ApiPokemon.PokeTypesResponse;
 import org.pokemonbattlefield.controller.dto.ApiPokemon.PokemonListaResponseDTO;
 import org.pokemonbattlefield.controller.dto.CadastrarPokemonDTO;
 import org.pokemonbattlefield.controller.dto.PokemonExternoDTO;
+import org.pokemonbattlefield.controller.dto.VerificaDonoPokemonDTO;
 import org.pokemonbattlefield.controller.mapper.PokeApiMapper;
 import org.pokemonbattlefield.controller.mapper.PokemonMapper;
 import org.pokemonbattlefield.exception.DeleteNaoPermitidoException;
@@ -316,6 +317,15 @@ public class PokemonService {
 
     public boolean verificaDono(Integer id){
         return repository.existsPokemonComTreinador(id);
+    }
+
+    public Map<String, Boolean> verificaDono(VerificaDonoPokemonDTO dto){
+        Map<String, Boolean> mapaDonos = new LinkedHashMap<>();
+        List<Integer> pokeIds = dto.pokemonsIds();
+        pokeIds.forEach(
+                id -> mapaDonos.put(String.valueOf(id),repository.existsPokemonComTreinador(id))
+        );
+        return mapaDonos;
     }
 
     public List<Pokemon> findPokemonsById(List<Integer> id){
