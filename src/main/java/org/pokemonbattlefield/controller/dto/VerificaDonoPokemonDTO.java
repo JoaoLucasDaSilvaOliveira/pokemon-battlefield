@@ -1,6 +1,6 @@
 package org.pokemonbattlefield.controller.dto;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 

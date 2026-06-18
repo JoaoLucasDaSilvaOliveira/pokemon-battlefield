@@ -1,7 +1,6 @@
 package org.pokemonbattlefield.controller;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.RequiredArgsConstructor;
+import javax.validation.constraints.NotBlank;
 import org.pokemonbattlefield.Service.GinasioService;
 import org.pokemonbattlefield.model.Ginasio;
 import org.springframework.http.HttpStatus;
@@ -15,10 +14,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("ginasio")
-@RequiredArgsConstructor
 public class GinasioController {
 
     private final GinasioService service;
+
+    public GinasioController(GinasioService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public ResponseEntity<List<Ginasio>> obterTodosOsGinasios(){

@@ -1,6 +1,5 @@
 package org.pokemonbattlefield.Service;
 
-import lombok.RequiredArgsConstructor;
 import org.pokemonbattlefield.Repository.GinasioRepository;
 import org.pokemonbattlefield.exception.IdInvalidoException;
 import org.pokemonbattlefield.exception.RegistroNaoEncontradoException;
@@ -11,10 +10,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class GinasioService {
 
     private final GinasioRepository repository;
+
+    public GinasioService(GinasioRepository repository) {
+        this.repository = repository;
+    }
 
     public List<Ginasio> obterTodos(){
         return repository.findAll();

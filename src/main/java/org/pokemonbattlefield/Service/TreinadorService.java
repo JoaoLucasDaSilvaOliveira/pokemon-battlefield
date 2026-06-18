@@ -1,6 +1,5 @@
 package org.pokemonbattlefield.Service;
 
-import lombok.AllArgsConstructor;
 import org.pokemonbattlefield.Repository.PokemonRepository;
 import org.pokemonbattlefield.Repository.TreinadorRepository;
 import org.pokemonbattlefield.controller.dto.DetalhesTreinadorDTO;
@@ -18,13 +17,18 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-@AllArgsConstructor
 public class TreinadorService implements IdValidador<UUID> {
 
     private static final String TIPO_ENTIDADE = "Treinador";
     private final TreinadorRepository treinadorRepository;
     private final TreinadorMapper mapper;
     private final PokemonRepository pokemonRepository;
+
+    public TreinadorService(TreinadorRepository treinadorRepository, TreinadorMapper mapper, PokemonRepository pokemonRepository) {
+        this.treinadorRepository = treinadorRepository;
+        this.mapper = mapper;
+        this.pokemonRepository = pokemonRepository;
+    }
 
     public Treinador salvar(TreinadorDTO dto) throws DuplicadoException {
         if(isDuplicated(dto, false)){

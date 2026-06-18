@@ -1,8 +1,5 @@
 package org.pokemonbattlefield.exception;
 
-import lombok.Getter;
-
-@Getter
 public class RegistroNaoEncontradoException extends RuntimeException {
     public RegistroNaoEncontradoException(String tipoEntidade) {
         super();
@@ -10,4 +7,8 @@ public class RegistroNaoEncontradoException extends RuntimeException {
     }
 
     private final String tipoEntidade;
+
+    public String getTipoEntidade() {
+        return tipoEntidade;
+    }
 }

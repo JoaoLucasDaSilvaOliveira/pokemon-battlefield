@@ -1,7 +1,5 @@
 package org.pokemonbattlefield.model.util;
 
-import lombok.Getter;
-@Getter
 public enum EvolucaoPokemon {
     BASE(0),
     EVO_I(0.5),
@@ -14,4 +12,8 @@ public enum EvolucaoPokemon {
     }
 
     private final double multiplicador;
+
+    public double getMultiplicador() {
+        return multiplicador;
+    }
 }

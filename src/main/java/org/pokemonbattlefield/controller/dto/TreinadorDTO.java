@@ -1,7 +1,7 @@
 package org.pokemonbattlefield.controller.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import org.pokemonbattlefield.model.util.ClasseTreinador;
 
 public record TreinadorDTO (

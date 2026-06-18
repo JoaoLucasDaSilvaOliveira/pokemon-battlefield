@@ -1,12 +1,9 @@
 package org.pokemonbattlefield.model.util;
 
-import lombok.Getter;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Getter
 public enum ClasseTreinador {
     /*
     MAX BONUSES:
@@ -45,6 +42,22 @@ public enum ClasseTreinador {
         this.bonusDefesa = bonusDefesa;
         this.bonusCura = bonusCura;
         this.descricao = descricao;
+    }
+
+    public Integer getBonusAtq() {
+        return bonusAtq;
+    }
+
+    public Integer getBonusDefesa() {
+        return bonusDefesa;
+    }
+
+    public Integer getBonusCura() {
+        return bonusCura;
+    }
+
+    public String getDescricao() {
+        return descricao;
     }
 
     public static Map<String, Map<String, Object>> getDetalhesClassesComoMap() {

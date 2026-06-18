@@ -1,7 +1,6 @@
 package org.pokemonbattlefield.controller;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import javax.validation.Valid;
 import org.pokemonbattlefield.Service.TreinadorService;
 import org.pokemonbattlefield.controller.dto.DetalhesTreinadorDTO;
 import org.pokemonbattlefield.controller.dto.TreinadorDTO;
@@ -17,10 +16,13 @@ import java.util.UUID;
 
 @RestController()
 @RequestMapping("treinador")
-@RequiredArgsConstructor
 public class TreinadorController {
 
     private final TreinadorService service;
+
+    public TreinadorController(TreinadorService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<Void> salvar (@RequestBody @Valid TreinadorDTO dto){

@@ -1,7 +1,6 @@
 package org.pokemonbattlefield.Service;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import javax.validation.Valid;
 import org.pokemonbattlefield.Repository.BatalhaRepository;
 import org.pokemonbattlefield.Repository.PokemonRepository;
 import org.pokemonbattlefield.Repository.TreinadorRepository;
@@ -25,14 +24,13 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@RequiredArgsConstructor
 public class PokemonService {
 
     // CACHE EM MEMÓRIA (Guarda as páginas já visitadas para acesso instantâneo)
@@ -45,7 +43,23 @@ public class PokemonService {
     private final BatalhaRepository batalhaRepository;
 
     @Qualifier(value = "restClientPokeAPI")
-    private final RestClient restClient;
+    private final RestTemplate restClient;
+
+    public PokemonService(
+            PokemonRepository repository,
+            TreinadorRepository treinadorRepository,
+            PokeApiMapper apiMapper,
+            PokemonMapper mapper,
+            BatalhaRepository batalhaRepository,
+            @Qualifier("restClientPokeAPI") RestTemplate restClient
+    ) {
+        this.repository = repository;
+        this.treinadorRepository = treinadorRepository;
+        this.apiMapper = apiMapper;
+        this.mapper = mapper;
+        this.batalhaRepository = batalhaRepository;
+        this.restClient = restClient;
+    }
 
     // --- INICIALIZAÇÃO INTELIGENTE (Executa ao subir a aplicação) ---
     // Tenta carregar as primeiras páginas. Se falhar (rede/deploy), tenta de novo algumas vezes.
@@ -152,10 +166,7 @@ public class PokemonService {
 
     public PokemonExternoDTO findByNameOrIdOnPokeAPI(String nomeOuId) {
         try {
-            PokeApiResponse raw = restClient.get()
-                    .uri("/pokemon/{id}", nomeOuId)
-                    .retrieve()
-                    .body(PokeApiResponse.class);
+            PokeApiResponse raw = restClient.getForObject("/pokemon/{id}", PokeApiResponse.class, nomeOuId);
             return apiMapper.converterParaDTO(raw);
         } catch (HttpClientErrorException.NotFound e) {
             throw new RegistroNaoEncontradoException("Pokemon não encontrado na API externa: " + nomeOuId);
@@ -169,10 +180,11 @@ public class PokemonService {
     private PokemonListaResponseDTO buscarPokemonsPorTipoPaginado(String tipo, Integer pagina) {
         try {
             // 1. Busca o tipo completo na PokeAPI
-            PokeApiTypeResponse typeResponse = restClient.get()
-                    .uri("/type/{tipo}", tipo.toLowerCase())
-                    .retrieve()
-                    .body(PokeApiTypeResponse.class);
+            PokeApiTypeResponse typeResponse = restClient.getForObject(
+                    "/type/{tipo}",
+                    PokeApiTypeResponse.class,
+                    tipo.toLowerCase()
+            );
 
             if (typeResponse == null || typeResponse.pokemon() == null) {
                 return new PokemonListaResponseDTO(0, null, null, List.of());
@@ -228,19 +240,18 @@ public class PokemonService {
 
         try {
             // 1. Busca a lista "crua" (só nomes)
-            PokeApiListResponse rawList = restClient.get()
-                    .uri(uriBuilder -> {
-                        uriBuilder.path(path).queryParam("limit", tamanhoPagina);
-
-                        // ALTERAÇÃO: Só envia offset se for maior que 0
-                        if (offset > 0) {
-                            uriBuilder.queryParam("offset", offset);
-                        }
-
-                        return uriBuilder.build();
-                    })
-                    .retrieve()
-                    .body(PokeApiListResponse.class);
+            PokeApiListResponse rawList = offset > 0
+                    ? restClient.getForObject(
+                            path + "?limit={limit}&offset={offset}",
+                            PokeApiListResponse.class,
+                            tamanhoPagina,
+                            offset
+                    )
+                    : restClient.getForObject(
+                            path + "?limit={limit}",
+                            PokeApiListResponse.class,
+                            tamanhoPagina
+                    );
 
             if (rawList == null || rawList.results() == null) {
                 return new PokemonListaResponseDTO(0, null, null, List.of());
@@ -275,11 +286,7 @@ public class PokemonService {
     }
 
     private PokeTypesResponse montarRequisicaoPokeTypes(){
-        return restClient
-                .get()
-                .uri("/type")
-                .retrieve()
-                .body(PokeTypesResponse.class);
+        return restClient.getForObject("/type", PokeTypesResponse.class);
     }
 
     public Integer vincular(@Valid CadastrarPokemonDTO dto) {

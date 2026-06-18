@@ -1,8 +1,7 @@
 package org.pokemonbattlefield.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-import lombok.RequiredArgsConstructor;
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import org.pokemonbattlefield.Service.PokemonService;
 import org.pokemonbattlefield.controller.dto.ApiPokemon.PokeTypesResponse;
 import org.pokemonbattlefield.controller.dto.ApiPokemon.PokemonListaResponseDTO;
@@ -18,11 +17,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("pokemon")
-@RequiredArgsConstructor
 public class PokemonController {
 
     private static final String VALOR_DEFAULT_PAGINA = "0";
     private final PokemonService service;
+
+    public PokemonController(PokemonService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public ResponseEntity<PokemonListaResponseDTO> obterPokemonsComFiltroEPaginavel (

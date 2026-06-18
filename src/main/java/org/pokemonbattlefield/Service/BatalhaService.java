@@ -1,6 +1,5 @@
 package org.pokemonbattlefield.Service;
 
-import lombok.RequiredArgsConstructor;
 import org.pokemonbattlefield.Repository.BatalhaRepository;
 import org.pokemonbattlefield.Repository.TreinadorRepository;
 import org.pokemonbattlefield.controller.dto.BatalhaDTO;
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class BatalhaService {
 
     private final BatalhaRepository repository;
@@ -26,6 +24,22 @@ public class BatalhaService {
     private final GinasioService ginasioService;
     private final TreinadorService treinadorService;
     private final BatalhaMapper mapper;
+
+    public BatalhaService(
+            BatalhaRepository repository,
+            TreinadorRepository treinadorRepository,
+            PokemonService pokemonService,
+            GinasioService ginasioService,
+            TreinadorService treinadorService,
+            BatalhaMapper mapper
+    ) {
+        this.repository = repository;
+        this.treinadorRepository = treinadorRepository;
+        this.pokemonService = pokemonService;
+        this.ginasioService = ginasioService;
+        this.treinadorService = treinadorService;
+        this.mapper = mapper;
+    }
 
     public UUID registrarBatalha(BatalhaDTO dto){
         Batalha batalha = mapper.deDtoParaBatalha(dto, pokemonService, treinadorService, ginasioService);

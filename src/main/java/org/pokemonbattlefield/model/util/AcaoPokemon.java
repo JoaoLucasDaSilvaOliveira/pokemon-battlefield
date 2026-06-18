@@ -1,16 +1,9 @@
 package org.pokemonbattlefield.model.util;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Column;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Column;
 @Embeddable
 public class AcaoPokemon {
 
@@ -23,6 +16,39 @@ public class AcaoPokemon {
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_acao", nullable = false)
     private TipoDeAcao tipoDeAcao;
+
+    public AcaoPokemon() {
+    }
+
+    public AcaoPokemon(String nomeAcao, Integer valorAcao, TipoDeAcao tipoDeAcao) {
+        this.nomeAcao = nomeAcao;
+        this.valorAcao = valorAcao;
+        this.tipoDeAcao = tipoDeAcao;
+    }
+
+    public String getNomeAcao() {
+        return nomeAcao;
+    }
+
+    public void setNomeAcao(String nomeAcao) {
+        this.nomeAcao = nomeAcao;
+    }
+
+    public Integer getValorAcao() {
+        return valorAcao;
+    }
+
+    public void setValorAcao(Integer valorAcao) {
+        this.valorAcao = valorAcao;
+    }
+
+    public TipoDeAcao getTipoDeAcao() {
+        return tipoDeAcao;
+    }
+
+    public void setTipoDeAcao(TipoDeAcao tipoDeAcao) {
+        this.tipoDeAcao = tipoDeAcao;
+    }
 
     public enum TipoDeAcao {
         ATAQUE,

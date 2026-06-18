@@ -1,6 +1,5 @@
 package org.pokemonbattlefield.controller.mapper;
 
-import lombok.RequiredArgsConstructor;
 import org.pokemonbattlefield.Repository.PokemonRepository;
 import org.pokemonbattlefield.controller.dto.ApiPokemon.MoveDetailsDTO;
 import org.pokemonbattlefield.controller.dto.ApiPokemon.PokeApiResponse;
@@ -11,20 +10,24 @@ import org.pokemonbattlefield.model.util.AcaoPokemon;
 import org.pokemonbattlefield.model.util.EvolucaoPokemon;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class PokeApiMapper {
 
     // Injetamos o cliente configurado para a PokeAPI
     @Qualifier("restClientPokeAPI")
-    private final RestClient restClient;
+    private final RestTemplate restClient;
     private final PokemonRepository repository;
+
+    public PokeApiMapper(@Qualifier("restClientPokeAPI") RestTemplate restClient, PokemonRepository repository) {
+        this.restClient = restClient;
+        this.repository = repository;
+    }
 
     public PokemonExternoDTO converterParaDTO(PokeApiResponse raw) {
         if (raw == null) return null;
@@ -42,7 +45,7 @@ public class PokeApiMapper {
         );
 
         // 2. Pegar o tipo principal
-        String tipo = raw.types().isEmpty() ? "NORMAL" : raw.types().getFirst().type().name().toUpperCase();
+        String tipo = raw.types().isEmpty() ? "NORMAL" : raw.types().get(0).type().name().toUpperCase();
 
         EvolucaoPokemon evolucao = EvolucaoPokemon.BASE;
 
@@ -78,10 +81,7 @@ public class PokeApiMapper {
 
             try {
                 // --- CHAMADA REAL À POKEAPI ---
-                MoveDetailsDTO detalhes = restClient.get()
-                        .uri("/move/{name}", nomeGolpe)
-                        .retrieve()
-                        .body(MoveDetailsDTO.class);
+                MoveDetailsDTO detalhes = restClient.getForObject("/move/{name}", MoveDetailsDTO.class, nomeGolpe);
 
                 if (detalhes == null || detalhes.damageClass() == null) continue;
 

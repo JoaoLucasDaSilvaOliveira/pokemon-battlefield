@@ -2,25 +2,21 @@ package org.pokemonbattlefield.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import javax.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table
-@Data
-@AllArgsConstructor
 public class Batalha {
 
     public Batalha (){}
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
     @ManyToMany
@@ -46,5 +42,44 @@ public class Batalha {
     @OneToOne
     @JoinColumn(name = "id_ginasio")
     private Ginasio ginasio;
+
+    public Batalha(UUID id, List<Pokemon> pokemonsBatalha, Treinador ganhador, Ginasio ginasio) {
+        this.id = id;
+        this.pokemonsBatalha = pokemonsBatalha;
+        this.ganhador = ganhador;
+        this.ginasio = ginasio;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public List<Pokemon> getPokemonsBatalha() {
+        return pokemonsBatalha;
+    }
+
+    public void setPokemonsBatalha(List<Pokemon> pokemonsBatalha) {
+        this.pokemonsBatalha = pokemonsBatalha;
+    }
+
+    public Treinador getGanhador() {
+        return ganhador;
+    }
+
+    public void setGanhador(Treinador ganhador) {
+        this.ganhador = ganhador;
+    }
+
+    public Ginasio getGinasio() {
+        return ginasio;
+    }
+
+    public void setGinasio(Ginasio ginasio) {
+        this.ginasio = ginasio;
+    }
 
 }

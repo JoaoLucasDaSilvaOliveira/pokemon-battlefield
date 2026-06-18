@@ -1,6 +1,6 @@
 package org.pokemonbattlefield.controller.dto;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Range;
 import org.pokemonbattlefield.model.Ginasio;
 import org.pokemonbattlefield.model.Pokemon;

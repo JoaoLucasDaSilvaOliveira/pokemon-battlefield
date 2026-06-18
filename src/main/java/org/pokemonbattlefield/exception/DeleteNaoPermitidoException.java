@@ -1,10 +1,7 @@
 package org.pokemonbattlefield.exception;
 
-import lombok.Getter;
-
 import java.util.Map;
 
-@Getter
 public class DeleteNaoPermitidoException extends RuntimeException {
     public DeleteNaoPermitidoException(String entidade, Map<String, String> motivos) {
         super();
@@ -14,4 +11,12 @@ public class DeleteNaoPermitidoException extends RuntimeException {
 
     private final String entidade;
     private final Map<String, String> motivos;
+
+    public String getEntidade() {
+        return entidade;
+    }
+
+    public Map<String, String> getMotivos() {
+        return motivos;
+    }
 }

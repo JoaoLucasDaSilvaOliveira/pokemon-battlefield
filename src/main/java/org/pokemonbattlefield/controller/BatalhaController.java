@@ -1,6 +1,5 @@
 package org.pokemonbattlefield.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.pokemonbattlefield.Service.BatalhaService;
 import org.pokemonbattlefield.controller.dto.BatalhaDTO;
 import org.pokemonbattlefield.controller.util.URIConfigurer;
@@ -15,10 +14,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("batalha")
-@RequiredArgsConstructor
 public class BatalhaController {
 
     private final BatalhaService service;
+
+    public BatalhaController(BatalhaService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public ResponseEntity<List<Batalha>> obterTodas (
